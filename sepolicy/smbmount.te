@@ -1,0 +1,27 @@
+# ==============================================================================
+# SELinux Policy Rules for smbmount
+# ==============================================================================
+
+type smbmount, domain;
+type smbmount_exec, exec_type, vendor_file_type, file_type;
+
+# Associate domain with init daemon
+init_daemon_domain(smbmount)
+
+# Allow shell execution and core utilities
+allow smbmount vendor_shell_exec:file rx_file_perms;
+allow smbmount vendor_toolbox_exec:file rx_file_perms;
+
+# Allow network sockets (for contacting 192.168.1.10)
+allow smbmount self:tcp_socket create_stream_socket_perms;
+allow smbmount node:tcp_socket node_bind;
+allow smbmount port:tcp_socket name_connect;
+
+# Allow execution of mount commands and directory handling
+allow smbmount self:capability { sys_admin net_raw net_admin };
+allow smbmount unlabeled:filesystem mount;
+allow smbmount labeledfs:filesystem mount;
+
+# Allow creating and editing the target directories under /mnt/runtime
+allow smbmount mnt_media_rw_file:dir { create_dir_perms mounton };
+allow smbmount mnt_media_rw_file:file create_file_perms;

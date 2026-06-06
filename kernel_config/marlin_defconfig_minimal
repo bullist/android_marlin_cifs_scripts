@@ -1,0 +1,12 @@
+# CIFS/SMB Filesystem Support
+CONFIG_CIFS=y
+CONFIG_CIFS_STATS=y
+CONFIG_CIFS_WEAK_PW_HASH=y
+CONFIG_CIFS_UPCALL=y
+CONFIG_CIFS_XATTR=y
+CONFIG_CIFS_POSIX=y
+CONFIG_CRYPTO_ARC4=y
+CONFIG_CRYPTO_MD4=y
+
+# Disable ONLY the TFA9888 speaker amplifier (the physically broken chip)
+# CONFIG_AMP_TFA9888 is not set

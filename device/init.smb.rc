@@ -1,0 +1,10 @@
+service smbmount /vendor/bin/mount_smb.sh
+    class late_start
+    user root
+    group root system net_raw net_admin
+    oneshot
+    disabled
+    seclabel u:r:smbmount:s0
+
+on property:sys.boot_completed=1
+    start smbmount

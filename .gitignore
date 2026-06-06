@@ -1,0 +1,31 @@
+# Ignore local credentials backup
+device/mount_smb.sh.local
+
+# Ignore massive source/compilation/toolchain directories
+kernel/
+kernel_4.4/
+toolchain/
+toolchain_arm32/
+bin/
+lineage_extracted/
+lineage_22_extracted/
+stock_extracted/
+unpack_lineage_boot/
+test_*
+repack_temp/
+repack_minimal/
+inspect_stock/
+
+# Ignore massive binary flashable images, zips, apks
+*.img
+*.zip
+*.apk
+*.bin
+*.tar.gz
+*.html
+payload-dumper-go
+custom_kernel_with_qcdt.bin
+custom_pruned_kernel_dtb
+
+# System files
+.DS_Store
