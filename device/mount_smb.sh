@@ -58,14 +58,26 @@ done
 # Function to mount to all views in a specific namespace option
 mount_views() {
     local ns_opt="$1"
+    local mount_opts="username=$USER,password=$PASS,vers=3.0,uid=1023,gid=1023,file_mode=0777,dir_mode=0777"
+    local mount_src="//$SERVER_IP/$SHARE_NAME"
     
-    # Mount to /storage/emulated/0/DCIM/Camera
-    su $ns_opt -c "mount -t cifs -o \"username=$USER,password=$PASS,vers=3.0,uid=1023,gid=1023,file_mode=0777,dir_mode=0777\" \"//$SERVER_IP/$SHARE_NAME\" \"/storage/emulated/0/$MOUNT_POINT\""
+    # 1. Mount to /storage/emulated/0/DCIM/Camera
+    su $ns_opt -c "mount -t cifs -o \"$mount_opts\" \"$mount_src\" \"/storage/emulated/0/$MOUNT_POINT\""
     
-    # Mount to runtime views
+    # 2. Mount to runtime views under /mnt/runtime/ (legacy compatibility)
     for view in default read write; do
-        su $ns_opt -c "mount -t cifs -o \"username=$USER,password=$PASS,vers=3.0,uid=1023,gid=1023,file_mode=0777,dir_mode=0777\" \"//$SERVER_IP/$SHARE_NAME\" \"/mnt/runtime/$view/emulated/0/$MOUNT_POINT\""
+        su $ns_opt -c "mount -t cifs -o \"$mount_opts\" \"$mount_src\" \"/mnt/runtime/$view/emulated/0/$MOUNT_POINT\""
     done
+
+    # 3. Mount to Android 11+ / Android 15 specific views
+    su $ns_opt -c "mount -t cifs -o \"$mount_opts\" \"$mount_src\" \"/mnt/user/0/emulated/0/$MOUNT_POINT\""
+    su $ns_opt -c "mount -t cifs -o \"$mount_opts\" \"$mount_src\" \"/mnt/androidwritable/0/emulated/0/$MOUNT_POINT\""
+    su $ns_opt -c "mount -t cifs -o \"$mount_opts\" \"$mount_src\" \"/mnt/installer/0/emulated/0/$MOUNT_POINT\""
+
+    # 4. Mount to FUSE pass-through path (crucial for MediaProvider on Android 11+)
+    # We must ensure the directory exists first in this namespace
+    su $ns_opt -c "mkdir -p /mnt/pass_through/0/emulated/0/$MOUNT_POINT"
+    su $ns_opt -c "mount -t cifs -o \"$mount_opts\" \"$mount_src\" \"/mnt/pass_through/0/emulated/0/$MOUNT_POINT\""
 }
 
 # Get MediaProvider PID robustly
@@ -107,6 +119,10 @@ do_mount
             for view in default read write; do
                 su -mm -c "umount -l /mnt/runtime/$view/emulated/0/$MOUNT_POINT"
             done
+            su -mm -c "umount -l /mnt/user/0/emulated/0/$MOUNT_POINT"
+            su -mm -c "umount -l /mnt/androidwritable/0/emulated/0/$MOUNT_POINT"
+            su -mm -c "umount -l /mnt/installer/0/emulated/0/$MOUNT_POINT"
+            su -mm -c "umount -l /mnt/pass_through/0/emulated/0/$MOUNT_POINT"
             do_mount
         fi
 
