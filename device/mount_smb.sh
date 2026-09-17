@@ -185,12 +185,27 @@ do_mount
             fi
         fi
 
-        # --- PART C: Media Scanner (Every 5 minutes / 300 seconds) ---
-        # We run this check every 10 loops (10 * 30s = 300s)
-        # We search only for files modified in the last 6 minutes (-mmin -6) and scan them
-        if [ $((LOOP_COUNT % 10)) -eq 0 ]; then
-            if [ -f "/storage/emulated/0/$MOUNT_POINT/.immich" ]; then
-                find "/storage/emulated/0/$MOUNT_POINT" -type f -mmin -6 2>/dev/null | while read file; do
+        # --- PART C: Media Scanner (Configurable via Android properties) ---
+        # Get configuration from Android properties (with defaults)
+        SCAN_ENABLE=$(getprop persist.cifs.enable_scan)
+        [ -z "$SCAN_ENABLE" ] && SCAN_ENABLE=1
+        
+        SCAN_INTERVAL=$(getprop persist.cifs.scan_interval)
+        [ -z "$SCAN_INTERVAL" ] && SCAN_INTERVAL=300
+        
+        SCAN_DIR=$(getprop persist.cifs.scan_dir)
+        [ -z "$SCAN_DIR" ] && SCAN_DIR="/storage/emulated/0/$MOUNT_POINT"
+
+        # Calculate if it's time to run based on the interval (30s per loop)
+        LOOPS_NEEDED=$((SCAN_INTERVAL / 30))
+        [ "$LOOPS_NEEDED" -eq 0 ] && LOOPS_NEEDED=1 # Prevent division by zero
+        
+        if [ "$SCAN_ENABLE" -eq 1 ] && [ $((LOOP_COUNT % LOOPS_NEEDED)) -eq 0 ]; then
+            if [ -d "$SCAN_DIR" ]; then
+                # Find files modified slightly longer than the interval to avoid race conditions
+                # (interval in minutes + 1)
+                MINS_AGO=$(( (SCAN_INTERVAL / 60) + 1 ))
+                find "$SCAN_DIR" -type f -mmin -$MINS_AGO 2>/dev/null | while read file; do
                     content call --method scan_file --uri content://media --arg "$file" >/dev/null 2>&1
                 done
             fi
