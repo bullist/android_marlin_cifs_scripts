@@ -9,6 +9,16 @@ CONFIG_CIFS_SMB2=y
 CONFIG_CRYPTO_ARC4=y
 CONFIG_CRYPTO_MD4=y
 
+# Disable Audio Codec and sound card driver to bypass cracked motherboard solder joints
+# CONFIG_SND_SOC_MSM8996 is not set
+# CONFIG_SND_SOC_WCD9335 is not set
+# CONFIG_WCD9335_CODEC is not set
+# CONFIG_USE_CODEC_MBHC is not set
+# CONFIG_SND_SOC_WCD_MBHC is not set
+# CONFIG_SND_SOC_WSA881X is not set
+# CONFIG_SND_SOC_WSA881X_SENSORS is not set
+# CONFIG_AMP_TFA9888 is not set
+
 # Disable proprietary HTC debug drivers to match LineageOS kernel tree capabilities
 # CONFIG_HTC_DEBUG is not set
 # CONFIG_HTC_REBOOT_BLOCK is not set
@@ -16,6 +26,13 @@ CONFIG_CRYPTO_MD4=y
 # CONFIG_HTC_NC_GPIO_PIN_SETTING is not set
 # CONFIG_HTC_DEBUG_BOOTLOADER_LOG is not set
 # CONFIG_HTC_DEBUG_MEM_DUMP_TABLE is not set
+
+# Disable core Qualcomm WCD codec helper modules to resolve compilation dependency errors
+# CONFIG_WCD9330_CODEC is not set
+# CONFIG_SND_SOC_WCD9330 is not set
+# CONFIG_WCD9XXX_CODEC_UTIL is not set
+# CONFIG_SND_SOC_WCD9XXX is not set
+# CONFIG_SND_SOC_WCD9XXX_V2 is not set
 
 # Re-enable core Qualcomm SoC architecture flag (accidentally disabled by stock config)
 CONFIG_ARCH_QCOM=y
@@ -27,6 +44,9 @@ CONFIG_SPMI=y
 CONFIG_MFD_SPMI_PMIC=y
 CONFIG_RESET_CONTROLLER=y
 
+# Disable Bluetooth Slimbus audio since audio IC is disabled
+# CONFIG_BTFM_SLIM is not set
+# CONFIG_BTFM_SLIM_WCN3990 is not set
 
 
 

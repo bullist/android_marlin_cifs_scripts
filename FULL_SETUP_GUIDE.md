@@ -3,9 +3,10 @@
 This guide will walk you through turning a legacy Google Pixel 1 into an automated, root-integrated photo frame backed directly by a standard SMB/CIFS network share. 
 
 By the end of this guide, your Pixel will:
-1. Trick Android 15 into natively seeing a 10TB+ network share as local storage.
-2. Automatically scan new network photos into Google Photos / Immich.
-3. Protect against battery swelling by hard-limiting the charge cycle to 60-70%.
+1. Bypass the notorious Pixel 1 "Audio IC" hardware crash / bootloop.
+2. Trick Android 15 into natively seeing a 10TB+ network share as local storage.
+3. Automatically scan new network photos into Google Photos / Immich.
+4. Protect against battery swelling by hard-limiting the charge cycle to 60-70%.
 
 ---
 
@@ -30,11 +31,11 @@ Before touching the phone, ensure your storage server is ready to accept connect
 
 ---
 
-## 🧠 Phase 2: Compiling the Custom CIFS Kernel
+## 🧠 Phase 2: Compiling the Custom Hardware-Bypass Kernel
 
-By default, the LineageOS stock kernel does not support the SMB/CIFS protocols needed to mount network drives directly into the Android filesystem. 
+The Google Pixel 1 suffers from a severe manufacturing defect where the motherboard solder cracks near the Audio IC. When the stock kernel tries to initialize the audio drivers, the phone instantly crashes or bootloops. 
 
-We will compile a custom kernel that explicitly **enables SMB/CIFS network storage support**.
+We bypass this by compiling a custom kernel that explicitly **disables the audio subsystems** and **enables SMB/CIFS network storage support**.
 
 1. **Clone the Tooling Repository**
    On your Linux PC, clone this script repository:
@@ -47,7 +48,7 @@ We will compile a custom kernel that explicitly **enables SMB/CIFS network stora
    ```bash
    git clone https://github.com/bullist/android_kernel_google_marlin_cifs.git kernel_4.4
    cd kernel_4.4
-   git checkout lineage-22.2
+   git checkout lineage-22.2-audio-bypass
    cd ..
    ```
 
@@ -79,7 +80,7 @@ Android phones boot from a `boot.img` file, which contains both the kernel and a
    ```bash
    ./flash_custom_kernel.sh
    ```
-   *Your phone will flash the custom kernel to both slots and reboot. It should now boot successfully with native CIFS/SMB support!*
+   *Your phone will flash the custom kernel to both slots and reboot. It should now boot successfully without Audio IC kernel panics!*
 
 ---
 
