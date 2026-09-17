@@ -9,11 +9,10 @@ This project configures a custom kernel and a user-space daemon stack for a root
 > **🚀 NEW TO THIS PROJECT?**  
 > **Read the [Full Step-by-Step Setup Guide](FULL_SETUP_GUIDE.md)** for a complete tutorial on how to configure your phone, compile the kernel, and integrate your network share from scratch!
 
-The goal of this project is to repurpose a legacy Google Pixel 1 device to act as an automated photo syncing/display device hooked up directly to a **SMB network library share**. It resolves three distinct challenges:
+The goal of this project is to repurpose a legacy Google Pixel 1 device to act as an automated photo syncing/display device hooked up directly to a **SMB network library share**. It resolves two distinct challenges:
 
-1. **Hardware Fault Bypass (Audio IC)**: Google Pixel 1 motherboard solder joints frequently fail near the audio IC, causing kernel panics or boot-loops during initialization. By compiling a custom kernel with all audio codecs and driver subsystems disabled, the physical hardware fault is bypassed, allowing the device to boot and run stably.
-2. **Network SMB Mount & App Integration**: The custom kernel enables `CONFIG_CIFS` (SMB/CIFS support) to mount the remote library. A custom daemon handles mounting the share directly into the emulated storage directory (`DCIM/Camera`), injecting the mount into the isolated `MediaProvider` mount namespace so standard user applications can access the photos seamlessly.
-3. **Battery Swell Prevention**: Since the device is plugged into power continuously, a battery care daemon manages charging. It keeps the battery level strictly between 60% and 70%, with a weekly conditioning charge to 70%, to prevent battery swelling.
+1. **Network SMB Mount & App Integration**: The custom kernel enables `CONFIG_CIFS` (SMB/CIFS support) to mount the remote library. A custom daemon handles mounting the share directly into the emulated storage directory (`DCIM/Camera`), injecting the mount into the isolated `MediaProvider` mount namespace so standard user applications can access the photos seamlessly.
+2. **Battery Swell Prevention**: Since the device is plugged into power continuously, a battery care daemon manages charging. It keeps the battery level strictly between 60% and 70%, with a weekly conditioning charge to 70%, to prevent battery swelling.
 
 ---
 
@@ -23,7 +22,6 @@ The goal of this project is to repurpose a legacy Google Pixel 1 device to act a
 * Forked from upstream LineageOS: [bullist/android_kernel_google_marlin_cifs](https://github.com/bullist/android_kernel_google_marlin_cifs) on the `lineage-22.0` branch.
 * Patched `arch/arm64/configs/m1s1_defconfig` to:
   * Enable `CONFIG_CIFS`, `CONFIG_CIFS_SMB2`, `CONFIG_CRYPTO_ARC4`, `CONFIG_CRYPTO_MD4` for SMB 3.0 protocol support.
-  * Disable audio subsystems (`CONFIG_SND_SOC_MSM8996`, `CONFIG_SND_SOC_WCD9335`, etc.) to bypass cracked motherboard solder joints.
   * Set compiler compatibility flags (`-fcommon`) for modern GCC 10+ compilation.
 
 ### 2. Boot Auto-Mount & Namespace Injection (`mount_smb.sh`)
@@ -61,7 +59,7 @@ Located in Magisk service directory (`/data/adb/service.d/mount_smb.sh`):
 * [repack_boot.sh](file:///home/bullist/.gemini/antigravity/scratch/sailfish_smb_rom/repack_boot.sh): Uses `magiskboot` to extract a base `boot.img`, injects the newly compiled kernel, and repacks it into `new-boot.img`.
 * [flash_custom_kernel.sh](file:///home/bullist/.gemini/antigravity/scratch/sailfish_smb_rom/flash_custom_kernel.sh): Monitors fastboot connection, flashes `new-boot.img` to both slots (`boot_a`/`boot_b`), sets slot A active, and reboots.
 * [device/mount_smb.sh](file:///home/bullist/.gemini/antigravity/scratch/sailfish_smb_rom/device/mount_smb.sh): The target shell script containing the mounting logic, self-healing loop, battery control, and MediaStore scanning.
-* [kernel_config/marlin_defconfig](file:///home/bullist/.gemini/antigravity/scratch/sailfish_smb_rom/kernel_config/marlin_defconfig): Defconfig diff patch containing CIFS enablement flags and hardware audio bypass settings.
+* [kernel_config/marlin_defconfig](file:///home/bullist/.gemini/antigravity/scratch/sailfish_smb_rom/kernel_config/marlin_defconfig): Defconfig diff patch containing CIFS enablement flags.
 
 ---
 
