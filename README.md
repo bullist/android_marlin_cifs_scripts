@@ -31,11 +31,15 @@ Located in Magisk service directory (`/data/adb/service.d/mount_smb.sh`):
 * **Self-Healing Loop**: Every 30 seconds, a background daemon checks for the existence of a sentinel file (`.immich`) on the mount. If missing, it unmounts and remounts all views automatically.
 
 ### 3. MediaStore Sync Daemon
-* Since Android's `MediaProvider` uses a java-based recursive walker that crashes at FUSE mount boundaries, a localized sync script runs every 5 minutes inside the daemon.
-* It scans the mount for files modified in the last 6 minutes (`find -type f -mmin -6`) and triggers standard media indexation on the individual paths:
+* Since Android's `MediaProvider` uses a java-based recursive walker that crashes at FUSE mount boundaries, a localized sync script runs in the background.
+* It scans the mount for files modified slightly longer than the interval and triggers standard media indexation on the individual paths:
   ```bash
   content call --method scan_file --uri content://media --arg "$file"
   ```
+* **Configuration**: You can configure this daemon without editing the script by setting standard Android system properties via ADB (they persist across reboots):
+  * `adb shell "su -c 'setprop persist.cifs.scan_interval 60'"` (Default: 300 seconds / 5 mins)
+  * `adb shell "su -c 'setprop persist.cifs.scan_dir /storage/emulated/0/DCIM/Camera'"` (Default: your mount point)
+  * `adb shell "su -c 'setprop persist.cifs.enable_scan 0'"` (Default: 1)
 
 ### 4. Battery Care Daemon
 * Keeps the phone charging in a safe 60%–70% range.
