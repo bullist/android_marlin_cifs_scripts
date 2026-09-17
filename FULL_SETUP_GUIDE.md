@@ -1,6 +1,6 @@
 # 📱 Pixel 1 (Sailfish/Marlin) NAS Photo Frame: Full Setup Guide
 
-This guide will walk you through turning a legacy Google Pixel 1 into an automated, root-integrated photo frame backed directly by a TrueNAS (or standard SMB/CIFS) network share. 
+This guide will walk you through turning a legacy Google Pixel 1 into an automated, root-integrated photo frame backed directly by a standard SMB/CIFS network share. 
 
 By the end of this guide, your Pixel will:
 1. Bypass the notorious Pixel 1 "Audio IC" hardware crash / bootloop.
@@ -14,7 +14,7 @@ By the end of this guide, your Pixel will:
 
 * **Hardware**: Google Pixel 1 (Sailfish) or Pixel 1 XL (Marlin)
 * **OS**: A Linux PC (Ubuntu/Debian recommended) for compiling the kernel.
-* **Storage Server**: A TrueNAS or generic SMB share on your local network.
+* **Storage Server**: A NAS or SMB share on your local network.
 * **Pre-installed on Phone**: 
   1. Unlocked Bootloader
   2. LineageOS 22.2 (Android 15) flashed
@@ -22,10 +22,10 @@ By the end of this guide, your Pixel will:
 
 ---
 
-## 🛠 Phase 1: TrueNAS / SMB Setup
+## 🛠 Phase 1: SMB Server Setup
 
 Before touching the phone, ensure your storage server is ready to accept connections.
-1. Create a dedicated user on your TrueNAS/SMB server (e.g., `pixel_sync`).
+1. Create a dedicated user on your SMB server (e.g., `pixel_sync`).
 2. Create an SMB share pointing to your photo library (e.g., `dockerdata/immich/data/library`).
 3. Ensure the `pixel_sync` user has **Read/Write** permissions to this dataset.
 
@@ -92,7 +92,7 @@ Our custom script bypasses this by calculating the `MediaProvider` PID and injec
 
 1. **Configure your Credentials**
    On your PC, open `device/mount_smb.sh` in a text editor.
-   Find the configuration block at the top and enter your TrueNAS details:
+   Find the configuration block at the top and enter your SMB server details:
    ```bash
    SERVER_IP="192.168.1.10"
    SHARE_NAME="your/share/name"
@@ -117,7 +117,7 @@ Our custom script bypasses this by calculating the `MediaProvider` PID and injec
 
 The mount script you just installed runs a background daemon that does two critical things:
 1. **Battery Swell Prevention**: It communicates directly with the kernel to completely cut off charging power when the battery hits 70%, and resumes at 60%. Once a week, it does a conditioning charge to 70%.
-2. **Network Media Scanner**: SMB shares do not send file-system change notifications (`inotify`) over the network. If you drop a photo onto TrueNAS from your PC, the phone won't know it's there. The daemon solves this by scanning the directory in the background.
+2. **Network Media Scanner**: SMB shares do not send file-system change notifications (`inotify`) over the network. If you drop a photo onto your SMB share from your PC, the phone won't know it's there. The daemon solves this by scanning the directory in the background.
 
 **Configuring the Scanner:**
 You can configure the background media scanner directly from ADB without editing the script.
@@ -132,4 +132,4 @@ You can configure the background media scanner directly from ADB without editing
   ```
 
 ### 🎉 You're Done!
-Reboot the phone one last time. Once you unlock the screen, the daemon will wait for Android's storage to decrypt, connect to your TrueNAS, inject the mount into Google Photos, and gracefully manage the battery!
+Reboot the phone one last time. Once you unlock the screen, the daemon will wait for Android's storage to decrypt, connect to your network share, inject the mount into Google Photos, and gracefully manage the battery!
