@@ -6,6 +6,9 @@ This project configures a custom kernel and a user-space daemon stack for a root
 
 ## 📖 Context & Purpose
 
+> **🚀 NEW TO THIS PROJECT?**  
+> **Read the [Full Step-by-Step Setup Guide](FULL_SETUP_GUIDE.md)** for a complete tutorial on how to configure your phone, compile the kernel, and integrate TrueNAS from scratch!
+
 The goal of this project is to repurpose a legacy Google Pixel 1 device to act as an automated photo syncing/display device hooked up directly to a **TrueNAS SMB library share**. It resolves three distinct challenges:
 
 1. **Hardware Fault Bypass (Audio IC)**: Google Pixel 1 motherboard solder joints frequently fail near the audio IC, causing kernel panics or boot-loops during initialization. By compiling a custom kernel with all audio codecs and driver subsystems disabled, the physical hardware fault is bypassed, allowing the device to boot and run stably.
